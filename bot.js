@@ -37,6 +37,9 @@ client.on('message', msg =>{
         
         stats.getInfo(username, platform).then( data => {
             
+            //return console.log(data);
+            //return console.log(data.lifetimeStats[13].value);
+            
             try{
                 var trnsolo = data.stats.p2.trnRating.displayValue;
             }catch(error){
@@ -189,39 +192,18 @@ client.on('message', msg =>{
                 var kpgteam = '-'; 
             }
             
-            try{
-                var timesolo = data.stats.p2.avgTimePlayed.displayValue;
-            }catch(error){
-                console.log('timesolo nicht vorhanden')
-                var timesolo = '-';
-            }
-            try{
-                var timeduo = data.stats.p10.avgTimePlayed.displayValue;
-            }catch(error){
-                console.log('timeduo nicht vorhanden')
-                var timeduo = '-'; 
-            }
-            try{
-                var timeteam = data.stats.p9.avgTimePlayed.displayValue;
-            }catch(error){
-                console.log('timeteam nicht vorhanden')
-                var timeteam = '-'; 
-            }
-
             const embedfn = new Discord.RichEmbed()
                 .setColor([255,198,82])
                 .setTitle(`__**Fortnite Stats des Users: ${data.username}**__`)
                 .setThumbnail('https://vignette.wikia.nocookie.net/fortnite/images/d/d8/Icon_Founders_Badge.png')
                 .addField(`\n
 __**General**__`,`
-**Score: ${data.lifetimeStats[6].value}
-Time Played: ${data.lifetimeStats[13].value} 
+**Score: ${data.lifetimeStats[6].value} 
 Games Played: ${data.lifetimeStats[7].value}
 Wins: ${data.lifetimeStats[8].value}
 Win Ratio: ${data.lifetimeStats[9].value}
 Kills: ${data.lifetimeStats[10].value}
 Kills/Death: ${data.lifetimeStats[11].value}
-avg. Survival Time: ${data.lifetimeStats[14].value}
 **`,true)
                 .addField(`\n
 __**Solo**__`,`
@@ -233,7 +215,6 @@ __**Solo**__`,`
     Kills: ${killssolo}
     Kills/Death: ${kdsolo}
     Kills/Game: ${kpgsolo}
-    avg. Survival Time: ${timesolo}
 **`,true)
                 .addField(`\n
 __**Duo**__`,`
@@ -245,7 +226,6 @@ Win Ratio: ${winrateduo}
 Kills: ${killsduo}
 Kills/Death: ${kdduo}
 Kills/Game: ${kpgduo}
-avg. Survival Time: ${timeduo}
 **`,true)
                 .addField(`\n
 __**Team**__`,`
@@ -257,7 +237,6 @@ __**Team**__`,`
     Kills: ${killsteam}
     Kills/Death: ${kdteam}
     Kills/Game: ${kpgteam}
-    avg. Survival Time: ${timeteam}
 **`,true)
             return msg.channel.sendEmbed(embedfn);
             
