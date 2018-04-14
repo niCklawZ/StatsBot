@@ -4,6 +4,9 @@ const config = require("./config.json");
 const client = new Discord.Client();
 const stats = new Fortnite(config.API_KEY);
 
+const RainbowSixApi = require('rainbowsix-api-node');
+const R6 = new RainbowSixApi();
+
 client.on('ready', () => console.log('Ich bin  bereit!'));
 
 client.on('message', msg =>{
@@ -20,7 +23,10 @@ client.on('message', msg =>{
     if(command==="help"){
         const embedhelp = new Discord.RichEmbed()
             .setTitle('__**StatsBot Commands**__')
-            .setDescription(`**stats.fortnite <platform [ pc | xbl | psn ]> <username>**`)
+            .setDescription(`
+**stats.fortnite <platform [ pc | xbl | psn ]> <username>
+stats.rainbow <platform [ uplay | xone | ps4 ]> <username>
+**`)
             .setColor([255,198,82])
         return msg.channel.sendEmbed(embedhelp);
             
@@ -36,9 +42,6 @@ client.on('message', msg =>{
         username = args.join(' ');
         
         stats.getInfo(username, platform).then( data => {
-            
-            //return console.log(data);
-            //return console.log(data.lifetimeStats[13].value);
             
             try{
                 var trnsolo = data.stats.p2.trnRating.displayValue;
@@ -245,6 +248,137 @@ __**Team**__`,`
             console.log(error);
             return msg.channel.send(`**Username ${username} nicht gefunden!**`);
         })
+    }
+    if(command === "rainbow"){
+        let platform;
+        let username;
+        if(!['uplay','xone','ps4'].includes(args[0])) return msg.channel.send('**Bitte die Platform angeben: `stats.rainbow <platform [ uplay | xone | ps4 ]> <username>`**');
+        if(!args[1]) return msg.channel.send('**Bitte den Usernamen angeben: `stats.fortnite <platform [ uplay | xone | ps4 ]> <username>`**');
+        
+        platform = args.shift();
+        username = args.join(' ');
+        
+        R6.stats(username, platform, false).then(data =>{
+  
+                if(data.player.stats.casual.has_played !== true){
+                    var cmatches = '-';
+                    var cwins = '-';
+                    var closses = '-';
+                    var cwlr = '-';
+                    var ckills = '-';
+                    var cdeaths = '-';
+                    var ckd = '-';
+                    var cph = '-';
+                    var cpm = '-';
+                    var cps = '-';
+                }else{
+                    var cwins = data.player.stats.casual.wins;
+                    var closses = data.player.stats.casual.losses;
+                    var cmatches = cwins+closses; 
+                    var cwlr = Math.round( ((data.player.stats.casual.wins/((data.player.stats.casual.wins)+(data.player.stats.casual.losses)))*100)*100)/100;
+                    var ckills = data.player.stats.casual.kills;
+                    var cdeaths = data.player.stats.casual.deaths;
+                    var ckd = data.player.stats.casual.kd;
+                    var cph = Math.floor(data.player.stats.casual.playtime/3600);
+                    var cpm = Math.floor((data.player.stats.casual.playtime/3600-cph)*60);
+                    var cps = Math.floor((((data.player.stats.casual.playtime/3600-cph)*60)-cpm)*60);
+                }
+            
+            
+                if(data.player.stats.ranked.has_played !== true){
+                    var rmatches = '-';
+                    var rwins = '-';
+                    var rlosses = '-';
+                    var rwlr = '-';
+                    var rkills = '-';
+                    var rdeaths = '-';
+                    var rkd = '-';
+                    var rph = '-';
+                    var rpm = '-';
+                    var rps = '-';
+                }else{
+                    var rwins = data.player.stats.ranked.wins;
+                    var rlosses = data.player.stats.ranked.losses;
+                    var rmatches = rwins+rlosses; 
+                    var rwlr = Math.round( ((data.player.stats.ranked.wins/((data.player.stats.ranked.wins)+(data.player.stats.ranked.losses)))*100)*100)/100;
+                    var rkills = data.player.stats.ranked.kills;
+                    var rdeaths = data.player.stats.ranked.deaths;
+                    var rkd = data.player.stats.ranked.kd;
+                    var rph = Math.floor(data.player.stats.ranked.playtime/3600);
+                    var rpm = Math.floor((data.player.stats.ranked.playtime/3600-rph)*60);
+                    var rps = Math.floor((((data.player.stats.ranked.playtime/3600-rph)*60)-rpm)*60);
+                }
+            
+                    var rev = data.player.stats.overall.revives;
+                    var sui = data.player.stats.overall.suicides;
+                    var reinf = data.player.stats.overall.reinforcements_deployed;
+                    var barr = data.player.stats.overall.barricades_built;
+                    var fired = data.player.stats.overall.bullets_fired;
+                    var hit = data.player.stats.overall.bullets_hit;
+                    var acc = Math.round((data.player.stats.overall.bullets_hit/data.player.stats.overall.bullets_fired*100)*100)/100;
+                    var hs = data.player.stats.overall.headshots;
+                    var hsr = Math.round((data.player.stats.overall.headshots/data.player.stats.overall.bullets_hit*100)*100)/100;
+                    var melee = data.player.stats.overall.melee_kills;
+                    var penet = data.player.stats.overall.penetration_kills;
+                    var ass = data.player.stats.overall.assists; 
+            
+     
+            const embedrb = new Discord.RichEmbed()
+                .setColor([255,198,82])
+                .setTitle(`__**Rainbow Six: Siege Stats des Users: ${data.player.username}**__`)
+                .setThumbnail('https://res.cloudinary.com/teepublic/image/private/s--W43hugIb--/t_Preview/b_rgb:191919,c_limit,f_jpg,h_630,q_90,w_630/v1478457254/production/designs/784128_1.jpg')
+                .setDescription(`**Level: ${data.player.stats.progression.level} (${data.player.stats.progression.xp} XP)**`)
+                .addField(`\n
+__**Casual**__`,`
+**Time Played: ${cph}h ${cpm}min ${cps}sec
+Matches Played: ${cmatches}
+Wins: ${cwins}
+Losses: ${closses}
+Win Ratio: ${cwlr}%
+Kills: ${ckills}
+Deaths: ${cdeaths}
+K/D: ${ckd}
+**`,false)
+                .addField(`
+__**Ranked**__`,`
+**Time Played: ${rph}h ${rpm}min ${rps}sec
+Matches Played: ${rmatches}
+Wins: ${rwins}
+Losses: ${rlosses}
+Win Ratio: ${rwlr}%
+Kills: ${rkills}
+Deaths: ${rdeaths}
+K/D: ${rkd}
+**`,false)
+                .addField(`
+__**Other**__`,`
+**Bullets Fired: ${fired}
+Bullets Hit: ${hit}
+Accuracy: ${acc}%
+Headshots: ${hs}
+Headshot Ratio: ${hsr}%
+Melee Kills: ${melee}
+Penetration Kills: ${penet}
+Assists: ${ass}
+Players Revived: ${rev}
+Suicides: ${sui}
+Reinforcements Deployed: ${reinf}
+Barricades Built: ${barr}
+**`,false)
+            
+            return msg.channel.sendEmbed(embedrb);
+            
+        }).catch(error => {
+            console.error(error.errors[0].detail); 
+            if(error.errors[0].detail === 'The player specified was not found.'){
+                return msg.channel.send(`**Konnte den User ${username} nicht finden!**`);
+            }
+            else{
+                return msg.channel.send(`**Error: ${error.errors[0].detail}**`);
+                
+            }
+        });
+        
     }
 });
 
