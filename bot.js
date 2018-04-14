@@ -349,7 +349,7 @@ Win Ratio: ${rwlr}%
 Kills: ${rkills}
 Deaths: ${rdeaths}
 K/D: ${rkd}
-**`,true)
+**`,false)
                 .addField(`
 __**Other**__`,`
 **Bullets Fired: ${fired}
@@ -364,7 +364,7 @@ Players Revived: ${rev}
 Suicides: ${sui}
 Reinforcements Deployed: ${reinf}
 Barricades Built: ${barr}
-**`,true)
+**`,false)
             
             return msg.channel.sendEmbed(embedrb);
             
